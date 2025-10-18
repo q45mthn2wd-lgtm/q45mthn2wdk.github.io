@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Confirmaciones — XV Kenia</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;700&family=Lora:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{ --bg: rgb(69, 104, 164); --text:#29609b; --accent:#9fbfff; --font-title:"Great Vibes", cursive; --font-base:"Lora", serif; }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--font-base);
+  background: var(--bg) url('fondo.jpg') center/cover no-repeat;
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+/* panel */
+.panel{ width:100%; max-width:920px; background:rgba(0,0,0,0.03); border-radius:12px; padding:20px; box-shadow:0 18px 40px rgba(0,0,0,0.28); }
+.header{text-align:center;margin-bottom:12px}
+.header h1{ font-family:var(--font-title); font-size:40px; margin-bottom:6px }
+.form{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:12px }
+.input{ padding:10px; border-radius:8px; border:none; background: rgba(255,255,255,0.04); color:var(--text); min-width:200px }
+.btn{ padding:10px 14px; border-radius:10px; border:none; background:linear-gradient(90deg,var(--accent),#6fa8ff); color:white; cursor:pointer; font-weight:700 }
+.notice{ text-align:center; margin-top:10px; font-weight:700 }
+.list{ margin-top:12px; max-height:380px; overflow:auto; border-radius:8px; padding:8px; background:rgba(0,0,0,0.01) }
+.item{ padding:8px; border-bottom:1px solid rgba(255,255,255,0.02); display:flex; justify-content:space-between; gap:8px; align-items:center }
+.small{ font-size:13px; opacity:0.9 }
+.footer{ text-align:center;margin-top:10px;font-size:13px;color:var(--text) }
+</style>
+</head>
+<body>
+<div class="panel">
+  <div class="header">
+    <h1>Confirmaciones — Kenia XV</h1>
+    <div class="small">Capacidad máxima: 200 personas</div>
+  </div>
+
+  <form id="form" class="form" onsubmit="return false;">
+    <input id="name" class="input" placeholder="Tu nombre completo" required>
+    <input id="guests" class="input" placeholder="Acompañantes (0)" type="number" min="0" max="10" value="0" required>
+    <button id="sendBtn" class="btn">Confirmar</button>
+  </form>
+
+  <div class="notice">Total confirmados: <span id="total">0</span> / 200</div>
+
+  <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;">
+    <button id="adminBtn" class="btn">Ver lista (anfitrión)</button>
+    <button id="clearBtn" class="btn" style="background:#ff7f7f">Borrar todo</button>
+  </div>
+
+  <div class="list" id="list"></div>
+
+  <div class="footer">Los datos se guardan localmente en LocalStorage (navegador). Solo el anfitrión con la contraseña puede ver/borrar.</div>
+</div>
+
+<script>
+/* LocalStorage key and capacity */
+const LS_KEY = 'kenia_confirmaciones_v2';
+const CAPACITY = 200;
+
+/* Helpers */
+function load(){ return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+function save(arr){ localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
+
+// compute total people (each entry counts as 1 + guests)
+function computeTotal(arr){
+  return arr.reduce((acc, it) => acc + 1 + (Number(it.guests)||0), 0);
+}
+
+// update UI list & total (for admin)
+function renderList(){
+  const arr = load();
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  arr.forEach((it, idx) => {
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.innerHTML = `<div><strong>${escapeHtml(it.name)}</strong><div class="small">+${it.guests} acompañantes</div></div><div class="small">${new Date(it.ts).toLocaleString()}</div>`;
+    list.appendChild(div);
+  });
+  document.getElementById('total').textContent = computeTotal(arr);
+}
+
+function escapeHtml(s){ return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* Submit confirmation */
+document.getElementById('sendBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('name').value.trim();
+  const guests = Math.max(0, Math.min(10, Number(document.getElementById('guests').value || 0)));
+  if(!name){ alert('Por favor ingresa tu nombre'); return; }
+  const arr = load();
+  const totalNow = computeTotal(arr);
+  if(totalNow + 1 + guests > CAPACITY){ alert('Lo sentimos, capacidad alcanzada.'); return; }
+  arr.push({ name, guests, ts: Date.now() });
+  save(arr);
+  document.getElementById('name').value = '';
+  document.getElementById('guests').value = '0';
+  alert('Gracias — tu asistencia ha sido registrada.');
+  // update simple total
+  document.getElementById('total').textContent = computeTotal(arr);
+});
+
+/* Admin view (password) */
+document.getElementById('adminBtn').addEventListener('click', ()=>{
+  const pwd = prompt('Introduce la contraseña de anfitrión para ver la lista:');
+  // default admin password (change if desired)
+  if(pwd === 'KeniaAdmin'){
+    renderList();
+    alert('Lista mostrada abajo. Puedes copiar o revisar los registros.');
+  } else {
+    alert('Contraseña incorrecta.');
+  }
+});
+
+/* Clear all (admin) */
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  const pwd = prompt('Introduce la contraseña de anfitrión para borrar todo:');
+  if(pwd === 'KeniaAdmin'){
+    if(confirm('¿Borrar todas las confirmaciones? Esta acción no se puede deshacer.')){
+      localStorage.removeItem(LS_KEY);
+      renderList();
+      document.getElementById('total').textContent = '0';
+      alert('Datos borrados.');
+    }
+  } else { alert('Contraseña incorrecta.'); }
+});
+
+/* initialize UI */
+(function init(){
+  const arr = load();
+  document.getElementById('total').textContent = computeTotal(arr);
+  // list empty until admin authenticates
+})();
+
+</script>
+</body>
+</html>

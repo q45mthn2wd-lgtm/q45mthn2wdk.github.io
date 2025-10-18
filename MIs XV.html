@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MIS XV KENIA </title>
+
+<!-- Fuentes elegantes -->
+<link href="https://fonts.googleapis.com/css2?family=Imperial+Script&family=Petit+Formal+Script&family=Merida&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg: rgb(64, 98, 156);           /* Fondo principal */
+  --text-blue: #2252a6f7;           /* Azul claro para textos */
+  --accent: #2b59b5;                /* Azul pastel brillante */
+
+  /* Fuentes personalizadas */
+  --font-cursive: "Imperial Script", cursive;          /* Solo el título grande: MIS XV KENIA */
+  --font-title: "Petit Formal Script", cursive;         /* Subtítulos (Fecha, Itinerario, etc.) */
+  --font-body: "Merida", serif;                         /* Texto general */
+}
+/* Forzar fuentes dentro del sobre (texto interior) */
+.inner, 
+.inner .box, 
+.inner p, 
+.inner strong, 
+.inner div, 
+.inner h2, 
+.inner a {
+  font-family: "Merida", serif !important;
+}
+
+.inner strong,
+.inner h2 {
+  font-family: "Petit Formal Script", cursive !important;
+  font-weight: 600;
+}
+
+
+
+/* Base */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--font-body);
+  background: var(--bg) url('fondo.jpg') center/cover no-repeat;
+  color:var(--text-blue);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+  scroll-behavior:smooth;
+  padding-bottom:50px;
+}
+
+/* Top controls (music + confirm button) */
+.top-controls{
+  position:fixed;
+  top:12px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:10px;
+  z-index:100;
+}
+.btn{
+  background:linear-gradient(90deg,var(--accent),#6fa8ff);
+  color:rgb(151, 182, 222);
+  border:0;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,0.18);
+}
+
+/* Header / Title */
+.header{
+  height:84vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:100px;
+  text-align:center;
+}
+.title{
+  font-family:var(--font-cursive);
+  font-size:72px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  background:linear-gradient(90deg,#140974,#4557e0,#4b3e88);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:shimmer 8s linear infinite, pulse 6s ease-in-out infinite;
+}
+@keyframes shimmer{0%{background-position:-200% 0}50%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+/* Envelope area */
+.section{display:flex;align-items:center;justify-content:center;padding:28px 16px}
+.envelope{
+  width:92%;
+  max-width:920px;
+  min-height:460px;
+  perspective:1400px;
+  position:relative;
+  cursor:pointer;
+  margin:0 auto;
+}
+.envelope .card{
+  position:relative;
+  inset:0;
+  border-radius:18px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  box-shadow:0 28px 60px rgba(0,0,0,0.32);
+  overflow:hidden;
+}
+
+/* Flap / tapa */
+.flap{
+  position:absolute;
+  left:0; top:0;
+  width:100%; height:56%;
+  background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+  transform-origin: top center;
+  transition: transform 900ms cubic-bezier(.2,.9,.3,1);
+  z-index:40;
+  border-top-left-radius:18px;
+  border-top-right-radius:18px;
+}
+.envelope.open .flap{ transform: rotateX(-180deg); box-shadow: 0 -40px 60px rgba(0,0,0,0.12); }
+
+/* Inner content (hidden until open) */
+.inner{
+  position:relative;
+  display:grid;
+  grid-template-columns: 1fr 360px;
+  gap:20px;
+  padding:28px;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity 540ms ease 300ms;
+  z-index:10;
+}
+.envelope.open .inner{ opacity:1; pointer-events:auto; }
+@media(max-width:980px){
+  .inner{ grid-template-columns:1fr; max-height:calc(100vh - 140px); overflow:auto; }
+  .title{font-size:48px}
+}
+
+/* Boxes */
+.box{ background: rgba(0,0,0,0.03); padding:14px; border-radius:12px; margin-bottom:12px; }
+.small{ font-size:30px; color:var(--text-blue) }
+.countdown{ display:flex; gap:10px; margin-top:10px; justify-content:center }
+.cd{ min-width:58px; padding:10px; border-radius:8px; background:rgba(0,0,0,0.03); font-weight:800; font-family:var(--font-title); text-align:center }
+
+/* Right column styles */
+aside .box img{ width:100%; border-radius:8px; display:block }
+
+/* Petals (fixed layer so they start from top) */
+.petals{ position:fixed; inset:0; pointer-events:none; z-index:5; overflow:visible; }
+.petal{ position:absolute; width:26px; height:32px; border-radius:50% 50% 40% 60%; background: radial-gradient(circle at 40% 30%, #bfe0ff 0%, #7fb8ff 45%, #3d78ff 100%); filter: drop-shadow(0 4px 12px rgba(0,0,0,0.18)); animation-name:fall,sway; animation-duration:6s; animation-iteration-count:infinite; }
+
+/* fall + sway */
+@keyframes fall{0%{transform:translateY(-20vh) rotate(0deg); opacity:0.85}10%{opacity:1}100%{transform:translateY(120vh) rotate(540deg); opacity:1}}
+@keyframes sway{0%{transform:translateX(0) rotate(0deg)}50%{transform:translateX(40px) rotate(180deg)}100%{transform:translateX(-20px) rotate(360deg)}}
+
+/* Footer note */
+.footer{ text-align:center; margin-top:18px; font-size:13px; color:var(--text-blue); opacity:0.95; }
+
+/* small responsive tweaks */
+@media(max-width:600px){
+  .btn{ padding:10px 12px; font-size:14px }
+}
+</style>
+</head>
+<body>
+
+  <!-- Top controls: music (at start) and quick confirm link -->
+  <div class="top-controls">
+    <!-- Music button (first element on page) -->
+    <button class="btn" id="playMusicBtn">🎵 Reproducir música</button>
+    <a class="btn" id="goConfirm" href="CONFIMACIONES.html" target="_blank">Confirmar asistencia</a>
+  </div>
+
+  <!-- Header / Title -->
+  <div class="header">
+    <div class="title">MIS XV KENIA</div>
+    <div class="small">Acompáñame a celebrar este día tan especial</div>
+  </div>
+
+  <!-- Envelope section (click or scroll to open) -->
+  <div class="section">
+    <div class="envelope" id="envelope" aria-label="Sobre - toca para abrir" tabindex="0">
+      <div class="card">
+        <div class="flap" id="flap"></div>
+
+        <div class="inner" id="inner">
+          <!-- IZQUIERDA (información principal) -->
+          <div>
+            <div class="box">
+              <h2 style="font-family:var(--font-title)">Kenia</h2>
+              <p class="small">Te invito con todo mi cariño a celebrar mis XV años</p>
+            </div>
+        
+            <div class="box">
+              <strong class="small">Fecha</strong>
+              <div style="margin-top:20px;font-weight:800">29 de noviembre de 2025</div>
+              <div class="countdown">
+                <div class="cd" id="days">00</div>
+                <div class="cd" id="hours">00</div>
+                <div class="cd" id="mins">00</div>
+                <div class="cd" id="secs">00</div>
+              </div>
+            </div>
+        
+            <div class="box">
+              <strong class="small">Itinerario</strong>
+              <div style="margin-top:8px" class="small">
+                Recepción — 4pm<br>
+                Comida — 5pm<br>
+                Vals — 8pm<br>
+                Baile — 9pm<br>
+                Fin de la fiesta — 1am
+              </div>
+            </div>
+        
+            <div class="box">
+              <strong class="small">SUGERENCIA DE REGALO</strong>
+              <div style="margin-top:8px;font-weight:700">
+                Si piensas en un regalo, los sobres son bienvenidos — ¡habrá lluvia de billetes! 🤑
+              </div>
+            </div>
+          </div>
+        
+          <!-- DERECHA (ubicación y vestimenta) -->
+          <aside>
+            <div class="box">
+              <strong class="small">Ubicación</strong>
+              <div style="margin-top:8px">
+                <a id="mapLink" href="https://www.google.com/maps/search/?api=1&query=TAQUERIA+La+tradicional+Av.+Leandro+Valle+81+San+Lorenzo+Acopilco+Cuajimalpa+CDMX" 
+                   target="_blank" 
+                   style="color:var(--text-blue); text-decoration:underline">
+                  AQUÍ SERÁN MIS XV!!!
+                </a>
+              </div>
+            </div>
+        
+            <div class="box">
+              <strong class="small">Código de vestimenta</strong>
+              <div style="margin-top:8px">
+                <img src="IDEA.jpg" alt="Código de vestimenta" 
+                     style="width:100%;border-radius:8px;display:block" />
+              </div>
+              <div style="margin-top:8px;font-weight:700">Formal casual</div>
+            </div>
+          </aside>
+        </div>
+        
+
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Abre el sobre (toca o desplázate) para ver la invitación completa</div>
+
+  <!-- Petals layer -->
+  <div class="petals" id="petals"></div>
+
+  <!-- Hidden spotify iframe (src set only after user clicks) -->
+  <audio id="player" src="MICANCION.mp3"></audio>
+
+
+<script>
+/* ---------- Open envelope on click or when scrolled into view ---------- */
+const envelope = document.getElementById('envelope');
+envelope.addEventListener('click', ()=> envelope.classList.toggle('open'));
+// keyboard
+envelope.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') envelope.classList.toggle('open'); });
+
+// open once when envelope scrolls near top (sliding effect)
+let openedByScroll = false;
+window.addEventListener('scroll', ()=>{
+  if(openedByScroll) return;
+  const rect = envelope.getBoundingClientRect();
+  if(rect.top < window.innerHeight * 0.65){ envelope.classList.add('open'); openedByScroll = true; }
+});
+
+/* ---------- Petals generation (start from above and fall) ---------- */
+const petalsContainer = document.getElementById('petals');
+function spawnPetals(n=36){
+  petalsContainer.innerHTML = '';
+  for(let i=0;i<n;i++){
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.left = (Math.random()*100) + 'vw';
+    // start above viewport (negative vh)
+    p.style.top = (-10 - Math.random()*20) + 'vh';
+    p.style.animationDelay = (Math.random()*4) + 's';
+    const s = 0.6 + Math.random()*1.6;
+    p.style.width = (22 * s) + 'px';
+    p.style.height = (28 * s) + 'px';
+    petalsContainer.appendChild(p);
+  }
+}
+spawnPetals(40);
+
+/* ---------- Countdown to 2025-11-29 ---------- */
+function updateCountdown(){
+  const target = new Date('2025-11-29T00:00:00');
+  const now = new Date();
+  let diff = target - now;
+  if(diff < 0) diff = 0;
+  const days = Math.floor(diff / (1000*60*60*24));
+  const hours = Math.floor((diff / (1000*60*60)) % 24);
+  const minutes = Math.floor((diff / (1000*60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+  document.getElementById('days').textContent = String(days).padStart(2,'0');
+  document.getElementById('hours').textContent = String(hours).padStart(2,'0');
+  document.getElementById('mins').textContent = String(minutes).padStart(2,'0');
+  document.getElementById('secs').textContent = String(seconds).padStart(2,'0');
+}
+// initial call & interval
+updateCountdown();
+setInterval(updateCountdown,1000);
+
+/* ---------- Música local ---------- */
+const player = document.getElementById('player');
+
+// botón principal (🎵)
+document.getElementById('playMusicBtn').addEventListener('click', ()=>{
+  player.volume = 0.7;   // volumen 70%
+  player.play();
+});
+
+// botón dentro de la caja de música
+document.getElementById('playTopBtn').addEventListener('click', ()=>{
+  player.volume = 0.7;
+  player.play();
+});
+
+// reproducir automáticamente al primer toque
+let musicStarted = false;
+function startMusic(){
+  if(musicStarted) return;
+  player.volume = 0.7;
+  player.play();
+  musicStarted = true;
+}
+document.addEventListener('click', startMusic);
+document.addEventListener('touchstart', startMusic);
+
+document.getElementById('playMusicBtn').addEventListener('click', ()=>{ spotifyFrame.src = spotifySrc + "?autoplay=1"; spotifyFrame.style.display='block'; });
+document.getElementById('playTopBtn').addEventListener('click', ()=>{ spotifyFrame.src = spotifySrc + "?autoplay=1"; spotifyFrame.style.display='block'; });
+document.getElementById('playTopBtn').addEventListener('touchstart', ()=>{ spotifyFrame.src = spotifySrc + "?autoplay=1"; spotifyFrame.style.display='block'; });
+
+/* Accessibility: focus outline for keyboard users */
+envelope.style.outline = 'none';
+envelope.addEventListener('focus', ()=>{ envelope.style.boxShadow='0 0 0 4px rgba(159,191,255,0.12)'; });
+envelope.addEventListener('blur', ()=>{ envelope.style.boxShadow='none'; });
+
+</script>
+</body>
+</html>
