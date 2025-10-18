@@ -49,7 +49,7 @@ body{
   -moz-osx-font-smoothing:grayscale;
   overflow-x:hidden;
   scroll-behavior:smooth;
-  padding-bottom:50px;
+  padding-bottom:100px;
 }
 
 /* Top controls (music + confirm button) */
