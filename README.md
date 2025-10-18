@@ -43,13 +43,14 @@
 html,body{height:100%}
 body{
   font-family:var(--font-body);
-  background: var(--bg) url('fondo.JPG') center/cover no-repeat;
+  background: var(--bg) url('fondo.JPG')  no-repeat center center fixed;;
   color:var(--text-blue);
+  background-size: cover;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
   overflow-x:hidden;
   scroll-behavior:smooth;
-  padding-bottom:100px;
+  padding-bottom:50px;
 }
 
 /* Top controls (music + confirm button) */
