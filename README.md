@@ -43,7 +43,7 @@
 html,body{height:100%}
 body{
   font-family:var(--font-body);
-  background: var(--bg) url('fondo.jpg') center/cover no-repeat;
+  background: var(--bg) url('fondo.JPG') center/cover no-repeat;
   color:var(--text-blue);
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
